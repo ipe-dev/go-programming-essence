@@ -1,22 +1,23 @@
 package main
 
-import (
-	"time"
-)
-func sendMessage(msg string) {
-	println(msg)
-}
+import "sync"
 
 func main() {
-	message := "hi"
-	go func() {
-		sendMessage(message)
-	}()
-	// race condition
-	// goroutineと呼び出し元の間に競合がある
-	message = "ho"
 
-	time.Sleep(time.Second)
-	println(message)
-	time.Sleep(time.Second)
+	// main関数が終了するとgoroutineも強制終了してしまう
+	// それを防ぐためにsync.WaitGroupを使ってgoroutineの終了を待つ
+	var wg sync.WaitGroup
+	// リファレンスカウンタを+1
+	wg.Add(1)
+	go func() {
+		// リファレンスカウンタを-1
+		defer wg.Done()
+		// 重い処理
+		print("重い処理2")
+	}()
+
+	// 別の重い処理
+	print("重い処理1")
+	// リファレンスカウンタが0になるまで待つ
+	wg.Wait()
 }
