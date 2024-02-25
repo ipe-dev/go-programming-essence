@@ -2,33 +2,30 @@ package main
 
 import (
 	"fmt"
-	"sync"
 )
 
+func server(ch chan string) {
+	defer close(ch)
+	// チャネルにデータを送信
+	ch <- "one"
+	ch <- "two"
+	ch <- "three"
+}
+
 func main() {
-	n := 0
+	var s string
 
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-	wg.Add(2)
+	// channelを作成
+	ch := make(chan string)
 
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 1000; i++ {
-			mu.Lock()
-			n++
-			mu.Unlock()
-		}
-	}()
+	go server(ch)
 
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 1000; i++ {
-			mu.Lock()
-			n++
-			mu.Unlock()
-		}
-	}()
-	wg.Wait()
-	fmt.Println(n)
+	s = <-ch
+	fmt.Println(s) // one
+
+	s = <-ch
+	fmt.Println(s) // two
+
+	s = <-ch
+	fmt.Println(s) // three
 }
