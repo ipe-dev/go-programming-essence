@@ -2,24 +2,27 @@ package main
 
 import "fmt"
 
-type F struct {
-	Name string
-	Age  int
-}
+type Fruit int
 
-// Stringerインターフェースを実装する
-// type Stringer interface {
-// 	String() string
-// }
-func (f *F) String() string {
-	return fmt.Sprintf("NAME=%q,AGE=%d", f.Name, f.Age)
+const (
+	Apple Fruit = iota
+	Orange
+	Banana
+)
+func (i Fruit) String() string {
+	switch i {
+	case Apple:
+			return "Apple"
+	case Orange:
+		return "Orange"
+	case Banana:
+		return "Banana"
+	}
+	return fmt.Sprintf("Fruit(%d)", i)
 }
 
 func main() {
-	f := &F{
-		Name: "John",
-		Age:  20,
-	}
-	// fmtパッケージに渡したときのフォーマットが変わる
-	fmt.Printf("%v\n", f)
+	var f Fruit
+	f = Apple
+	fmt.Println(f)
 }
