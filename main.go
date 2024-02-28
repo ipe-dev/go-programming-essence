@@ -1,16 +1,35 @@
-//go:generate stringer -type Fruit
 package main
 
 import (
+	"encoding/json"
 	"log"
-	"os"
 )
 
-func main() {
-	f, err := os.OpenFile("hoge.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		panic(err)
+var content = `
+{
+	"species": "ハト",
+	"description":"岩に止まるのが好き",
+	"dimensions":{
+		"height":24,
+		"width":10
 	}
-	log.SetOutput(f)
-	log.Println("app started")
+}`
+
+type Dimensions struct {
+	Width  int `json:"width"`
+	Height int `json:"height"`
+}
+
+type Data struct {
+	Species     string     `json:"species"`
+	Description string     `json:"description"`
+	Dimensions  Dimensions `json:"dimensions"`
+}
+
+func main() {
+	var data Data
+	err := json.Unmarshal([]byte(content), &data)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
