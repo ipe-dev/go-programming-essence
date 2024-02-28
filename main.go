@@ -1,31 +1,36 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
-	"os"
+	"net"
 )
 
-type Dimensions struct {
-	Width  int `json:"width"`
-	Height int `json:"height"`
-}
+func handleData(conn net.Conn) {
+	defer conn.Close()
 
-type Data struct {
-	Species     string     `json:"species"`
-	Description string     `json:"description"`
-	Dimensions  Dimensions `json:"dimensions"`
+	var b [512]byte
+	for {
+		n, err := conn.Read(b[:])
+		if err != nil {
+			break
+		}
+		fmt.Println(string(b[:n]))
+	}
 }
 
 func main() {
-	var data Data
-	f, err := os.Open("input.json")
+	lis, err := net.Listen("tcp", ":8888")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// ネットワークやファイルのjsonを扱うときはデコーダを使う
-	err = json.NewDecoder(f).Decode(data)
-	if err != nil {
-		log.Fatal(err)
+	defer lis.Close()
+
+	for {
+		conn, err := lis.Accept()
+		if err != nil {
+			log.Fatal(err)
+		}
+		go handleData(conn)
 	}
 }
