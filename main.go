@@ -3,17 +3,8 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"os"
 )
-
-var content = `
-{
-	"species": "ハト",
-	"description":"岩に止まるのが好き",
-	"dimensions":{
-		"height":24,
-		"width":10
-	}
-}`
 
 type Dimensions struct {
 	Width  int `json:"width"`
@@ -28,7 +19,12 @@ type Data struct {
 
 func main() {
 	var data Data
-	err := json.Unmarshal([]byte(content), &data)
+	f, err := os.Open("input.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// ネットワークやファイルのjsonを扱うときはデコーダを使う
+	err = json.NewDecoder(f).Decode(data)
 	if err != nil {
 		log.Fatal(err)
 	}
