@@ -1,33 +1,35 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"io/fs"
-	"log"
-	"os"
-	"path/filepath"
+	"sync"
+	"time"
 )
 
-func main() {
-	files := []string{}
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
+func f(ctx context.Context, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for {
+		select {
+		case <-ctx.Done():
+			// 中断
+			return
+		default:
+		}
+		fmt.Println("goroutine:処理")
+		time.Sleep(1 * time.Second)
 	}
-	err = filepath.WalkDir(cwd, func(path string, info fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
+}
 
-		if info.IsDir() {
-			// 隠しディレクトリをスキップする
-			if info.Name()[0] == '.' {
-				return fs.SkipDir
-			}
-			return nil
-		}
-		files = append(files, path)
-		return nil
-	})
-	fmt.Println(files)
+func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	// goroutineを起動した側で処理の中断をするため、contextとcancelを生成
+	ctx, cancel := context.WithCancel(context.Background())
+	go f(ctx, &wg)
+	time.Sleep(10 * time.Second)
+
+	// contextで処理を中止
+	cancel()
+	wg.Wait()
 }
