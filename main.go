@@ -24,12 +24,9 @@ func f(ctx context.Context, wg *sync.WaitGroup) {
 func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	// goroutineを起動した側で処理の中断をするため、contextとcancelを生成
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
+	defer cancel()
 	go f(ctx, &wg)
-	time.Sleep(10 * time.Second)
 
-	// contextで処理を中止
-	cancel()
 	wg.Wait()
 }
