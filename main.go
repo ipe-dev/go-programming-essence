@@ -1,32 +1,20 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"sync"
-	"time"
+	_ "embed"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
-func f(ctx context.Context, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for {
-		select {
-		case <-ctx.Done():
-			// 中断
-			return
-		default:
-		}
-		fmt.Println("goroutine:処理")
-		time.Sleep(1 * time.Second)
-	}
-}
+//go:embed static/logo.png
+var contents []byte
 
 func main() {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
-	defer cancel()
-	go f(ctx, &wg)
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.Blob(http.StatusOK, "image/png", contents)
+	})
 
-	wg.Wait()
+	e.Logger.Fatal(e.Start(":8989"))
 }
