@@ -6,36 +6,41 @@ import (
 )
 
 type Server struct {
+	param serverParam
+}
+
+type serverParam struct {
 	host    string
 	port    int
 	timeout time.Duration
 	logger  *log.Logger
 }
 
-type Option func(*Server)
+func NewBuilder(host string, port int) *serverParam {
+	return &serverParam{host: host, port: port}
+}
 
-func WithTimeout(timeout time.Duration) func(*Server) {
-	return func(s *Server) {
-		s.timeout = timeout
-	}
+func (sb *serverParam) Timeout(timeout time.Duration) *serverParam {
+	sb.timeout = timeout
+	return sb
 }
-func WithLogger(logger *log.Logger) func(*Server) {
-	return func(s *Server) {
-		s.logger = logger
-	}
+
+func (sb *serverParam) Logger(logger *log.Logger) *serverParam {
+	sb.logger = logger
+	return sb
 }
-func New(host string, port int, options ...Option) *Server {
+
+func (sb *serverParam) Build() *Server {
 	svr := &Server{
-		host: host,
-		port: port,
-	}
-	for _, opt := range options {
-		opt(svr)
+		param: *sb,
 	}
 	return svr
 }
 
 func (s *Server) Start() error {
+	if s.param.logger != nil {
+		s.param.logger.Println("server started")
+	}
 	// do something
 	return nil
 }

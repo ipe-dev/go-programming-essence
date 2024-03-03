@@ -16,7 +16,10 @@ func main() {
 	defer f.Close()
 
 	logger := log.New(f, "", log.LstdFlags)
-	svr := server.New("localhost", 8888, server.WithTimeout(time.Minute), server.WithLogger(logger))
+	svr := server.NewBuilder("localhost", 8888).
+		Timeout(time.Minute).
+		Logger(logger).
+		Build()
 	if err := svr.Start(); err != nil {
 		log.Fatal(err)
 	}
