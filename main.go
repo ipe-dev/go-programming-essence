@@ -1,26 +1,40 @@
 package main
 
-import (
-	_ "embed"
-	"go-programming-essence/server"
-	"log"
-	"os"
-	"time"
-)
+import "fmt"
+
+type Attr struct {
+	Name string
+	Age  int
+}
+
+func (a Attr) String() string {
+	return fmt.Sprintf("%s(%d)", a.Name, a.Age)
+}
+
+type AttrEx struct{
+	Name string
+}
+
+func (a AttrEx) String() string {
+	return fmt.Sprintf("(a.k.a.%s)", a.Name)
+}
+
+type Teacher struct {
+	Attr
+	AttrEx
+	Subject string
+}
 
 func main() {
-	f, err := os.Create("server.log")
-	if err != nil {
-		log.Fatal(err)
+	teacher := Teacher{
+		Attr: Attr{
+			Name: "John Schwartz",
+			Age:43,
+		},
+		AttrEx: AttrEx{
+			Name: "JS",
+		},
+		Subject: "Math",
 	}
-	defer f.Close()
-
-	logger := log.New(f, "", log.LstdFlags)
-	svr := server.NewBuilder("localhost", 8888).
-		Timeout(time.Minute).
-		Logger(logger).
-		Build()
-	if err := svr.Start(); err != nil {
-		log.Fatal(err)
-	}
+	fmt.Println(teacher.Attr.String(), teacher.AttrEx.String())
 }
