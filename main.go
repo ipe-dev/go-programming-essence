@@ -2,39 +2,29 @@ package main
 
 import "fmt"
 
-type Attr struct {
-	Name string
-	Age  int
-}
-
-func (a Attr) String() string {
-	return fmt.Sprintf("%s(%d)", a.Name, a.Age)
-}
-
-type AttrEx struct{
+type Walker struct {
 	Name string
 }
 
-func (a AttrEx) String() string {
-	return fmt.Sprintf("(a.k.a.%s)", a.Name)
+func(w *Walker)Walk() {
+	fmt.Printf("%s is walking\n", w.Name)
 }
 
-type Teacher struct {
-	Attr
-	AttrEx
-	Subject string
+type Runner struct {
+	Walker
+}
+
+func NewRunner(name string) *Runner {
+	return &Runner{Walker{Name: name}}
+}
+
+func (r *Runner) Run() {
+	fmt.Printf("%s is running\n", r.Name)
 }
 
 func main() {
-	teacher := Teacher{
-		Attr: Attr{
-			Name: "John Schwartz",
-			Age:43,
-		},
-		AttrEx: AttrEx{
-			Name: "JS",
-		},
-		Subject: "Math",
-	}
-	fmt.Println(teacher.Attr.String(), teacher.AttrEx.String())
+	runner := NewRunner("John")
+	runner.Walk()
+	runner.Run()
 }
+
