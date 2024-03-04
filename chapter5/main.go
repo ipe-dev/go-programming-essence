@@ -1,13 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"io"
 	"net/http"
+	"os"
 )
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World!")
+		f, err := os.Open("./fuga.txt")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		defer f.Close()
+		io.Copy(w, f)
 	})
 	http.ListenAndServe(":8080", nil)
 }
