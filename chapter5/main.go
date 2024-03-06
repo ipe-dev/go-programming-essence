@@ -1,19 +1,24 @@
 package main
 
 import (
-	"io"
+	"fmt"
+	"log"
 	"net/http"
-	"os"
+
+	"github.com/julienschmidt/httprouter"
 )
 
+func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprint(w, "Welcome\n")
+}
+
+func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	fmt.Fprintf(w, "hello, %s!\n", ps.ByName("name"))
+}
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		f, err := os.Open("./fuga.txt")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		defer f.Close()
-		io.Copy(w, f)
-	})
-	http.ListenAndServe(":8080", nil)
+	router := httprouter.New()
+	router.GET("/", Index)
+	router.GET("/hello/:name", Hello)
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
